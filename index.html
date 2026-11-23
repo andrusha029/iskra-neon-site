@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10091d">
+<title>ИСКРА — знакомства</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#10091d;color:#fff;font-family:Arial,sans-serif}
+header{padding:20px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:29px;font-weight:900;letter-spacing:3px;background:linear-gradient(90deg,#b36aff,#ff55b7);color:transparent;background-clip:text}
+.vip{border:1px solid #ff55b7;color:#ff8bd0;padding:9px 13px;border-radius:20px;font-size:12px}
+main{max-width:520px;margin:auto;padding:10px 16px 100px}
+h2{font-size:23px;margin:12px 0 5px}
+.sub{color:#a99bb9;font-size:13px;margin-bottom:18px}
+.search{width:100%;padding:14px;border:1px solid #49305e;border-radius:15px;background:#21152e;color:white;font-size:15px;margin-bottom:14px}
+.card{border-radius:25px;overflow:hidden;background:#25152f;box-shadow:0 0 30px #a52b9950}
+.photo{height:350px;display:flex;align-items:center;justify-content:center;font-size:120px;background:radial-gradient(circle at 50% 35%,#75406d,#281735 70%)}
+.online{position:absolute;top:16px;left:16px;background:#171020;padding:8px 12px;border-radius:20px;font-size:12px;color:#78ffb4}
+.info{padding:17px 20px}
+.name{font-size:25px;font-weight:bold}
+.age{font-size:20px;color:#d8c3e8}
+.city{color:#bcaacb;font-size:13px;margin-top:7px}
+.bio{font-size:14px;margin-top:10px}
+.actions{display:flex;justify-content:center;gap:17px;padding:20px}
+.action{width:62px;height:62px;border-radius:50%;border:1px solid #62416e;background:#24172f;color:white;font-size:27px}
+.like{background:linear-gradient(135deg,#a83cff,#ff4eaa);border:0;box-shadow:0 0 22px #e83fbd77}
+.section{margin-top:28px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.person{background:#21152e;border:1px solid #3b284c;border-radius:18px;overflow:hidden}
+.emoji{height:125px;display:grid;place-items:center;font-size:65px;background:linear-gradient(145deg,#59315e,#25152f)}
+.pinfo{padding:12px;font-size:14px}
+small{color:#ad9ab9}
+.page{display:none}
+.page.active{display:block}
+.panel{background:#21152e;border:1px solid #49305e;border-radius:18px;padding:17px;margin:14px 0}
+.btn{background:linear-gradient(90deg,#983cff,#f044a9);border:0;color:white;border-radius:13px;padding:13px;width:100%;margin-top:12px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#170e22;border-top:1px solid #382445;display:flex;justify-content:space-around;padding:12px 4px calc(12px + env(safe-area-inset-bottom))}
+nav button{background:none;border:0;color:#a99bb9;font-size:11px;display:flex;flex-direction:column;gap:5px;align-items:center}
+nav button span{font-size:21px}
+nav button.active{color:#ff70c4}
+.msg{background:#34213f;padding:12px;border-radius:15px;margin:10px 0;max-width:85%;font-size:14px}
+.msg.mine{margin-left:auto;background:#923dc1}
+#toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#362044;border:1px solid #e85ab8;padding:12px 18px;border-radius:20px;display:none;z-index:10}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">✦ ИСКРА</div>
+<div class="vip">✧ NEON CLUB</div>
+</header>
+<div id="toast"></div>
+<main>
+<section class="page active" id="home">
+<h2>Твоя новая искра ✨</h2>
+<div class="sub">Знакомства рядом с тобой</div>
+<input class="search" id="search" placeholder="⌕ Поиск по имени..." oninput="renderPeople()">
+<div class="card">
+<div style="position:relative">
+<div class="online">● Сейчас онлайн</div>
+<div class="photo" id="photo">👩🏻</div>
+</div>
+<div class="info">
+<div><span class="name" id="name">Алиса</span> <span class="age" id="age">24</span></div>
+<div class="city" id="city">📍 Рядом с тобой</div>
+<div class="bio" id="bio">Люблю путешествия и музыку ❤️</div>
+</div>
+</div>
+<div class="actions">
+<button class="action" onclick="next()">✕</button>
+<button class="action like" onclick="like()">♥</button>
+<button class="action" onclick="star()">★</button>
+</div>
+<div class="section">
+<h2>Тебе могут понравиться</h2>
+<div class="grid" id="people"></div>
+</div>
+</section>
+</main>
+
+  
+<section class="page" id="likes">
+<h2>Твои симпатии ❤️</h2>
+<div class="sub">Анкеты, которые тебе понравились</div>
+<div id="likedList" class="grid"></div>
+</section>
+
+<section class="page" id="chats">
+<h2>Сообщения 💬</h2>
+<div class="sub">Твои знакомства и разговоры</div>
+<div class="panel" onclick="openChat()">👩🏻 Алиса, 24 — открыть чат</div>
+<div id="chatbox" style="display:none" class="panel">
+<b>Алиса</b>
+<div class="msg">Привет! Рада знакомству 😊</div>
+<div id="messages"></div>
+<input class="search" id="messageInput" placeholder="Напиши сообщение...">
+<button class="btn" onclick="sendMessage()">Отправить</button>
+</div>
+</section>
+
+<section class="page" id="profile">
+<h2>Моя анкета</h2>
+<div class="panel" style="text-align:center">
+<div style="font-size:85px">🧑🏻</div>
+<h2>Твой профиль</h2>
+<div class="sub">Расскажи о себе</div>
+<input class="search" placeholder="Как тебя зовут?">
+<input class="search" placeholder="Сколько тебе лет?">
+<input class="search" placeholder="Твой город">
+<textarea class="search" placeholder="Расскажи о себе..." rows="3"></textarea>
+<button class="btn" onclick="toast('Профиль сохранён в демо')">Сохранить анкету</button>
+</div>
+</section>
+
+<section class="page" id="filters">
+<h2>Настройки поиска</h2>
+<div class="panel">
+<p>Возраст: <b id="ageLabel">18–35</b></p>
+<input type="range" min="18" max="60" value="35" style="width:100%;accent-color:#ed55b7" oninput="document.getElementById('ageLabel').innerText='18–'+this.value">
+<p>Кого ищем?</p>
+<select class="search">
+<option>Всех</option>
+<option>Девушек</option>
+<option>Парней</option>
+</select>
+<p>Расстояние</p>
+<select class="search">
+<option>Не важно</option>
+<option>До 10 км</option>
+<option>До 50 км</option>
+<option>До 100 км</option>
+</select>
+<button class="btn" onclick="toast('Фильтры применены в демо')">Применить фильтры</button>
+</div>
+</section>
+
+<nav>
+<button class="active" onclick="showPage('home',this)"><span>🔥</span>Поиск</button>
+<button onclick="showPage('likes',this)"><span>♥</span>Лайки</button>
+<button onclick="showPage('chats',this)"><span>💬</span>Чаты</button>
+<button onclick="showPage('profile',this)"><span>👤</span>Профиль</button>
+<button onclick="showPage('filters',this)"><span>⚙</span>Фильтры</button>
+</nav>
+
+<script>
+const profiles=[
+{name:'Алиса',age:24,city:'Рядом с тобой',photo:'👩🏻',bio:'Люблю путешествия, музыку и приключения ❤️'},
+{name:'София',age:22,city:'Недалеко',photo:'👩🏼',bio:'Кофе, прогулки и красивые закаты ☀️'},
+{name:'Виктория',age:26,city:'Твой город',photo:'👩🏽',bio:'Ищу интересного собеседника ✨'},
+{name:'Анастасия',age:23,city:'Недалеко',photo:'👩🏻‍🦰',bio:'Люблю животных и хорошее настроение 🐾'},
+{name:'Ева',age:25,city:'Рядом с тобой',photo:'👩🏾',bio:'Живу ярко и не люблю скучать 💜'},
+{name:'Полина',age:21,city:'Твой город',photo:'👱🏻‍♀️',bio:'Музыка — моя отдельная вселенная 🎧'}
+];
+
+let current=0;
+let liked=[];
+
+function toast(message){
+const el=document.getElementById('toast');
+el.innerText=message;
+el.style.display='block';
+setTimeout(()=>el.style.display='none',1800);
+}
+
+function draw(){
+const p=profiles[current%profiles.length];
+document.getElementById('name').innerText=p.name;
+document.getElementById('age').innerText=p.age;
+document.getElementById('city').innerText='📍 '+p.city;
+document.getElementById('photo').innerText=p.photo;
+document.getElementById('bio').innerText=p.bio;
+}
+
+function next(){
+current++;
+draw();
+}
+
+function like(){
+const p=profiles[current%profiles.length];
+if(!liked.some(x=>x.name===p.name)){
+liked.push(p);
+}
+renderLikes();
+toast('❤️ Симпатия отправлена!');
+next();
+}
+
+function star(){
+toast('⭐ Добавлено в избранное');
+}
+
+function renderPeople(){
+const q=document.getElementById('search').value.toLowerCase();
+document.getElementById('people').innerHTML=profiles
+.filter(p=>p.name.toLowerCase().includes(q))
+.map(p=>`
+<div class="person" onclick="selectPerson('${p.name}')">
+<div class="emoji">${p.photo}</div>
+<div class="pinfo"><b>${p.name}, ${p.age}</b><br><small>${p.city}</small></div>
+</div>`).join('');
+}
+
+function selectPerson(name){
+current=profiles.findIndex(p=>p.name===name);
+draw();
+showPage('home',document.querySelector('nav button'));
+}
+
+function renderLikes(){
+document.getElementById('likedList').innerHTML=
+liked.length
+?liked.map(p=>`
+<div class="person">
+<div class="emoji">${p.photo}</div>
+<div class="pinfo"><b>${p.name}, ${p.age}</b><br><small>Твоя симпатия</small></div>
+</div>`).join('')
+:'<div class="sub">Пока пусто. Поставь кому-нибудь лайк!</div>';
+}
+
+function showPage(id,btn){
+document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+btn.classList.add('active');
+}
+
+function openChat(){
+document.getElementById('chatbox').style.display='block';
+}
+
+function sendMessage(){
+const input=document.getElementById('messageInput');
+const value=input.value.trim();
+if(!value)return;
+const el=document.createElement('div');
+el.className='msg mine';
+el.textContent=value;
+document.getElementById('messages').appendChild(el);
+input.value='';
+}
+
+draw();
+renderPeople();
+renderLikes();
+</script>
+</body>
+</html>
+
+
+</body>
+</html>
